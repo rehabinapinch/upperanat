@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muscle Flashcards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .flashcard {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 300px;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .flashcard:hover {
+            transform: scale(1.05);
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .answer {
+            display: none;
+            margin-top: 10px;
+            font-style: italic;
+            color: #007BFF;
+        }
+        .answer.show {
+            display: block;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #B19CD9;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+     <h1>Upper Limb Flashcards</h1>
+
+<div id="flashcardContainer"></div>
+
+<div class="button-container">
+    <button id="prevButton">Last 3 Flashcards</button>
+    <button id="nextButton">Next 3 Flashcards</button>
+    <button id="randomButton">Randomize 3 Flashcards</button>
+</div>
+
+<script>
+const muscleData = [
+     {
+        muscle: 'Flexor Pollicis Longus',
+        origin: 'Anterior surface of radius and interosseous membrane',
+        insertion: 'Distal phalanx of thumb',
+        nerve: 'Anterior interosseous nerve (C8-T1)',
+        function: '1) Flexion of thumb'
+    },
+    {
+        muscle: 'Pronator Quadratus',
+        origin: 'Distal anterior surface of ulna',
+        insertion: 'Distal anterior surface of radius',
+        nerve: 'Anterior interosseous nerve (C8-T1)',
+        function: '1) Pronation of forearm'
+    },
+    {
+        muscle: 'Extensor Carpi Radialis Longus',
+        origin: 'Lateral supracondylar ridge of humerus',
+        insertion: 'Base of 2nd metacarpal',
+        nerve: 'Radial nerve (C6-C7)',
+        function: '1) Extension of wrist, 2) Abduction of wrist'
+    },
+     {
+                muscle: "Orbicularis oculi",
+                origin: "Medial orbital margin; lacrimal bone",
+                insertion: "Skin around the orbit; eyelid",
+                function: "Closes eyelids; assists in blinking, squinting",
+                nerve: "Facial nerve (CN VII)"
+                
+    },
+    {
+        "muscle": "Orbicularis Oris",
+        "origin": "Maxilla; mandible; modiolus",
+        "insertion": "Lips",
+        "function": "Closes and protrudes lips; puckering",
+        "nerve": "Facial nerve (CN VII)"
+    },
+    {
+        "muscle": "Buccinator",
+        "origin": "Molar region of maxilla and mandible; pterygomandibular raphe",
+        "insertion": "Orbicularis oris",
+        "function": "Compresses cheeks; holds food between teeth during chewing",
+        "nerve": "Facial nerve (CN VII)"
+    },
+    {
+        "muscle": "Nasalis",
+        "origin": "Maxilla",
+        "insertion": "Nasal cartilages",
+        "function": "Flattens nasal cartilage; dilates nostrils",
+        "nerve": "Facial nerve (CN VII)"
+    },
+    {
+        "muscle": "Temporalis",
+        "origin": "Temporal fossa",
+        "insertion": "Coronoid process of mandible",
+        "function": "Elevates and retracts mandible",
+        "nerve": "Mandibular nerve (CN V3)"
+    },
+    {
+        "muscle": "Masseter",
+        "origin": "Zygomatic arch",
+        "insertion": "Ramus of mandible",
+        "function": "Elevates mandible",
+        "nerve": "Mandibular nerve (CN V3)"
+    },
+    {
+        "muscle": "Lateral pterygoid",
+        "origin": "Lateral pterygoid plate; greater wing of sphenoid",
+        "insertion": "Neck of mandible; articular disc",
+        "function": "Protracts and laterally moves mandible",
+        "nerve": "Mandibular nerve (CN V3)"
+    },
+    {
+        "muscle": "Medial pterygoid",
+        "origin": "Medial pterygoid plate; tuberosity of maxilla",
+        "insertion": "Medial surface of mandible",
+        "function": "Elevates and protrudes mandible",
+        "nerve": "Mandibular nerve (CN V3)"
+    },
+    {
+        "muscle": "Platisma",
+        "origin": "Skin and fascia over deltoid and pectoralis major",
+        "insertion": "Mandible; skin of cheek and lower lip",
+        "function": "Depresses mandible; tenses skin of neck",
+        "nerve": "Facial nerve (CN VII)"
+    },
+    {
+        "muscle": "Sternocleidomastoid",
+        "origin": "Manubrium of sternum; medial part of clavicle",
+        "insertion": "Mastoid process of temporal bone",
+        "function": "Rotates and flexes neck; extends head",
+        "nerve": "Accessory nerve (CN XI); cervical plexus"
+    },
+    {
+        "muscle": "Levator Scapula",
+        "origin": "Transverse processes of C1-C4",
+        "insertion": "Superior angle of scapula",
+        "function": "Elevates scapula; downward rotation",
+        "nerve": "Dorsal scapular nerve (C5); cervical nerves (C3-C4)"
+    },
+    {
+        "muscle": "Digastric",
+        "origin": "Anterior belly: digastric fossa of mandible; Posterior belly: mastoid notch of temporal bone",
+        "insertion": "Intermediate tendon on body of hyoid bone",
+        "function": "Depresses mandible; elevates hyoid bone",
+        "nerve": "Anterior belly: mandibular nerve (CN V3); Posterior belly: facial nerve (CN VII)"
+    },
+    {
+        "muscle": "Mylohyoid",
+        "origin": "Mylohyoid line of mandible",
+        "insertion": "Body of hyoid bone; midline raphe",
+        "function": "Elevates floor of mouth; supports tongue",
+        "nerve": "Mylohyoid nerve (CN VIII)"
+    },
+    {
+        "muscle": "Geniohyoid",
+        "origin": "Mental spine of mandible",
+        "insertion": "Body of hyoid bone",
+        "function": "Elevates hyoid bone; depresses mandible",
+        "nerve": "C1 via hypoglossal nerve (CN XII)"
+    },
+    {
+        "muscle": "Stylohyoid",
+        "origin": "Styloid process of temporal bone",
+        "insertion": "Body of hyoid bone",
+        "function": "Elevates and retracts hyoid bone",
+        "nerve": "Facial nerve (CN VII)"
+    },
+    {
+        "muscle": "Sternohyoid",
+        "origin": "Manubrium of sternum",
+        "insertion": "Body of hyoid bone",
+        "function": "Depresses hyoid bone",
+        "nerve": "Ansa cervicalis (C1-C3)"
+    },
+    {
+        "muscle": "Omohyoid",
+        "origin": "Superior border of scapula",
+        "insertion": "Body of hyoid bone",
+        "function": "Depresses hyoid bone",
+        "nerve": "Ansa cervicalis (C1-C3)"
+    },
+    {
+        "muscle": "Sternothyroid",
+        "origin": "Manubrium of sternum",
+        "insertion": "Thyroid cartilage of larynx",
+        "function": "Depresses thyroid cartilage",
+        "nerve": "Ansa cervicalis (C1-C3)"
+    },
+    {
+        "muscle": "Thyrohyoid",
+        "origin": "Thyroid cartilage of larynx",
+        "insertion": "Body of hyoid bone",
+        "function": "Depresses hyoid bone; elevates thyroid cartilage",
+        "nerve": "C1 via hypoglossal nerve (CN XII)"
+    },
+    {
+        "muscle": "Longus coli (aka longus cervicis)",
+        "origin": "Transverse processes of C3-C7; bodies of C5-T3",
+        "insertion": "Bodies of C2-C4; transverse processes of C5-C6",
+        "function": "Flexes and rotates cervical spine",
+        "nerve": "Cervical nerves (C2-C6)"
+    },
+    {
+        "muscle": "Longus capitis",
+        "origin": "Transverse processes of C3-C6",
+        "insertion": "Basilar part of occipital bone",
+        "function": "Flexes and rotates head",
+        "nerve": "Cervical nerves (C1-C3)"
+    },
+    {
+        "muscle": "Scalenes",
+        "origin": "Transverse processes of cervical vertebrae",
+        "insertion": "First and second ribs",
+        "function": "Elevates first and second ribs; lateral flexion of neck",
+        "nerve": "Cervical nerves (C3-C8)"
+    },
+    {
+        "muscle": "Trapezius",
+        "origin": "External occipital protuberance; nuchal ligament; spinous processes of C7-T12",
+        "insertion": "Lateral third of clavicle; acromion; spine of scapula",
+        "function": "Elevates, retracts, and rotates scapula",
+        "nerve": "Accessory nerve (CN XI); cervical plexus"
+    },
+    {
+        "muscle": "Latissimus dorsi",
+        "origin": "Spinous processes of T7-L5; iliac crest; lower ribs",
+        "insertion": "Intertubercular groove of humerus",
+        "function": "Extends, adducts, and medially rotates humerus",
+        "nerve": "Thoracodorsal nerve (C6-C8)"
+    },
+    {
+        "muscle": "Rhomboid Minor",
+        "origin": "Spinous processes of C7-T1",
+        "insertion": "Medial border of scapula",
+        "function": "Retracts and elevates scapula",
+        "nerve": "Dorsal scapular nerve (C5)"
+    },
+    {
+        "muscle": "Rhomboid Major",
+        "origin": "Spinous processes of T2-T5",
+        "insertion": "Medial border of scapula",
+        "function": "Retracts and elevates scapula",
+        "nerve": "Dorsal scapular nerve (C5)"
+    },
+    {
+        "muscle": "Serratus posterior superior",
+        "origin": "Spinous processes of C7-T3",
+        "insertion": "Ribs 2-5",
+        "function": "Elevates ribs",
+        "nerve": "Intercostal nerves (T2-T5)"
+    },
+    {
+        "muscle": "Serratus posterior inferior",
+        "origin": "Spinous processes of T11-L2",
+        "insertion": "Ribs 9-12",
+        "function": "Depresses ribs",
+        "nerve": "Intercostal nerves (T9-T12)"
+    },
+    {
+        "muscle": "Splenius Capitis",
+        "origin": "Nuchal ligament; spinous processes of C7-T3",
+        "insertion": "Mastoid process; occipital bone",
+        "function": "Extends and rotates head",
+        "nerve": "Cervical nerves (C3-C6)"
+    },
+    {
+        "muscle": "Splenius Cervicis",
+        "origin": "Spinous processes of T3-T6",
+        "insertion": "Transverse processes of C1-C3",
+        "function": "Extends and rotates cervical spine",
+        "nerve": "Cervical nerves (C5-C7)"
+    },
+    {
+                muscle: 'Pectoralis Major',
+                origin: 'Clavicular head: medial half of clavicle, Sternocostal head: sternum, costal cartilage of upper 6 ribs, Abdominal head: blends with abdominal muscles',
+                insertion: 'Lateral lip of bicipital groove',
+                nerve: 'Lateral and medial pectoral nerves (C5-T1)',
+                function: 'Horizontal adduction, Medial rotation, Flexion (clavicular head), Extension (sternal head) of GH joint, Reverse function: Expands or lifts ribs to help with inspiration'
+            },
+            {
+                muscle: 'Pectoralis Minor',
+                origin: 'Ribs 3,4,5',
+                insertion: 'Tip of coracoid process',
+                nerve: 'Medial and lateral pectoral nerves (C8-T1)',
+                function: 'Brings tip of scapula superiorly and anteriorly, Reverse function: Expands or lifts ribs to help with inspiration'
+            },
+            {
+                muscle: 'Subclavius',
+                origin: 'Medial end of 1st rib (superior surface)',
+                insertion: 'Subclavian groove of clavicle',
+                nerve: 'Nerve to subclavius (C5, C6)',
+                function: 'Depression of clavicle, and posterior axial rotation of clavicle'
+            },
+            {
+                muscle: 'Serratus Anterior',
+                origin: 'Lateral surfaces of first 9 ribs',
+                insertion: 'Medial border of scapula',
+                nerve: 'Long thoracic (C5-C7)',
+                function: 'Protraction of scapula, prime mover for upward rotation of scapula, stabilizes scapula'
+            },
+            {
+                muscle: 'Supraspinatus',
+                origin: 'Supraspinous fossa of scapula',
+                insertion: 'Superior facet of greater tubercle of humerus',
+                nerve: 'Suprascapular nerve (C5, C6)',
+                function: 'Prime mover for first 30 degrees of abduction of GH joint'
+            },
+            {
+                muscle: 'Infraspinatus',
+                origin: 'Infraspinous fossa of scapula',
+                insertion: 'Middle facet of greater tubercle of humerus',
+                nerve: 'Suprascapular nerve (C5, C6)',
+                function: 'Lateral rotation and adduction of the humerus'
+            },
+            {
+                muscle: 'Teres Minor',
+                origin: 'Lateral border of scapula',
+                insertion: 'Inferior facet of greater tubercle of humerus',
+                nerve: 'Axillary nerve (C5, C6)',
+                function: 'Lateral rotation and adduction of the humerus'
+            },
+            {
+                muscle: 'Teres Major',
+                origin: 'Dorsal surface of inferior angle of scapula',
+                insertion: 'Medial lip of bicipital groove of humerus',
+                nerve: 'Lower subscapular nerve (C5, C6)',
+                function: 'Medial rotation, adduction, and extension of humerus'
+            },
+            {
+                muscle: 'Subscapularis',
+                origin: 'Subscapular fossa of scapula',
+                insertion: 'Lesser tubercle of humerus',
+                nerve: 'Upper and lower subscapular nerves (C5-C7)',
+                function: 'Medial rotation and adduction of humerus'
+            },
+            {
+                muscle: 'Deltoid',
+                origin: 'Lateral third of clavicle, acromion, and spine of scapula',
+                insertion: 'Deltoid tuberosity of humerus',
+                nerve: 'Axillary nerve (C5-C6)',
+                function: 'Abduction, flexion, and extension of the shoulder'
+            },
+            {
+                muscle: 'Coracobrachialis',
+                origin: 'Coracoid process of scapula',
+                insertion: 'Middle third of medial surface of humerus',
+                nerve: 'Musculocutaneous nerve (C5-C7)',
+                function: 'Flexion and adduction of shoulder'
+            },
+            {
+                muscle: 'Biceps Brachii',
+                origin: '1) Long head: supraglenoid tubercle, 2) Short head: coracoid process of scapula',
+                insertion: 'Radial tuberosity',
+                nerve: 'Musculocutaneous nerve (C5-C7)',
+                function: 'Flexion of elbow, supination of forearm, flexion of shoulder'
+            },
+            {
+                muscle: 'Brachialis',
+                origin: 'Distal half of anterior surface of humerus',
+                insertion: 'Coronoid process and ulnar tuberosity',
+                nerve: 'Musculocutaneous nerve (C5-C6)',
+                function: 'Flexion of elbow'
+            },
+            {
+                muscle: 'Triceps Brachii',
+                origin: '1) Long head: infraglenoid tubercle of scapula, 2) Lateral head: posterior surface of humerus, 3) Medial head: posterior surface of humerus',
+                insertion: 'Olecranon of ulna',
+                nerve: 'Radial nerve (C6-C8)',
+                function: 'Extension of elbow'
+            },
+            {
+                muscle: 'Pronator Teres',
+                origin: '1) Humeral head: medial epicondyle of humerus, 2) Ulnar head: coronoid process of ulna',
+                insertion: 'Lateral surface of radius',
+                nerve: 'Median nerve (C6-C7)',
+                function: 'Pronation of forearm and flexion of elbow'
+            },
+            {
+                muscle: 'Flexor Carpi Radialis',
+                origin: 'Medial epicondyle of humerus',
+                insertion: 'Base of 2nd and 3rd metacarpals',
+                nerve: 'Median nerve (C6-C7)',
+                function: 'Flexion and abduction of wrist'
+            },
+            {
+                muscle: 'Palmaris Longus',
+                origin: 'Medial epicondyle of humerus',
+                insertion: 'Palmar aponeurosis',
+                nerve: 'Median nerve (C8-T1)',
+                function: 'Flexion of wrist and Tenses palmar aponeurosis'
+            },
+            {
+                muscle: 'Flexor Carpi Ulnaris',
+                origin: '1) Humeral head: medial epicondyle of humerus, 2) Ulnar head: olecranon and posterior border of ulna',
+                insertion: 'Pisiform bone, hook of hamate, and base of 5th metacarpal',
+                nerve: 'Ulnar nerve (C8-T1)',
+                function: 'Flexion of wrist and adduction of wrist'
+            },
+            {
+                muscle: 'Flexor Digitorum Superficialis',
+                origin: '1) Humeroulnar head: medial epicondyle of humerus, 2) Radial head: anterior border of radius',
+                insertion: 'Middle phalanges of digits 2-5',
+                nerve: 'Median nerve (C8-T1)',
+                function: 'Flexion of digits 2-5 and wrist'
+            },
+            {
+                muscle: 'Flexor Digitorum Profundus',
+                origin: 'Anterior and medial surfaces of ulna and interosseous membrane',
+                insertion: 'Distal phalanges of digits 2-5',
+                nerve: '1) Medial part: ulnar nerve (C8-T1), 2) Lateral part: anterior interosseous nerve (C8-T1)',
+                function: 'Flexion of digits 2-5'
+            },
+            {
+                muscle: 'Flexor Pollicis Longus',
+                origin: 'Anterior surface of radius and interosseous membrane',
+                insertion: 'Distal phalanx of thumb',
+                nerve: 'Anterior interosseous nerve (C8-T1)',
+                function: 'Flexion of thumb'
+            },
+            {
+                 muscle: 'Flexor Pollicus Brevis',
+                origin: 'Flexor retinaculum and Trapezium',
+                insertion: 'Proximal phalanx of thumb',
+                nerve: ') Superficial head: Recurrent branch of median nerve (C8-T1) and Deep head: deep branch of ulnar nerve (C8-T1)',
+                function: 'Flexion of thumb'
+            },
+            {
+                muscle: 'Pronator Quadratus',
+                origin: 'Distal anterior surface of ulna',
+                insertion: 'Distal anterior surface of radius',
+                nerve: 'Anterior interosseous nerve (C8-T1)',
+                function: 'Pronation of forearm'
+            },
+            {
+                muscle: 'Extensor Carpi Radialis Longus',
+                origin: 'Lateral supracondylar ridge of humerus',
+                insertion: 'Base of 2nd metacarpal',
+                nerve: 'Radial nerve (C6-C7)',
+                function: 'Extension and abduction of wrist'
+            },
+            {
+                muscle: 'Extensor Carpi Radialis Brevis',
+                origin: 'Lateral epicondyle of humerus',
+                insertion: 'Base of 3rd metacarpal',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension and abduction of wrist'
+            },
+            {
+                muscle: 'Extensor Digitorum',
+                origin: 'Lateral epicondyle of humerus',
+                insertion: 'Extensor expansions of digits 2-5',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension of digits 2-5 and wrist'
+            },
+            {
+                muscle: 'Extensor Digiti Minimi',
+                origin: 'Lateral epicondyle of humerus',
+                insertion: 'Extensor expansion of digit 5',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension of digit 5'
+            },
+            {
+                muscle: 'Extensor Carpi Ulnaris',
+                origin: 'Lateral epicondyle of humerus, posterior border of ulna',
+                insertion: 'Base of 5th metacarpal',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension and Adduction of wrist'
+            },
+            {
+                muscle: 'Abductor Pollicis Longus',
+                origin: 'Posterior surface of ulna and radius, interosseous membrane',
+                insertion: 'Base of 1st metacarpal',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Abduction of thumb'
+            },
+             {
+                 muscle: 'Abductor Pollicus Brevis',
+                origin: 'Proximal phalanx of thumb and first metacarpal',
+                insertion: 'Proximal phalanx of thumb and first metacarpal',
+                nerve: 'Recurrent branch of median nerve (C8-T1)',
+                function: 'Abduction of thumb'
+            },
+            {
+                muscle: 'Extensor Pollicis Brevis',
+                origin: 'Posterior surface of radius and interosseous membrane',
+                insertion: 'Base of proximal phalanx of thumb',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension of thumb'
+            },
+            {
+                muscle: 'Extensor Pollicis Longus',
+                origin: 'Posterior surface of ulna and interosseous membrane',
+                insertion: 'Base of distal phalanx of thumb',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension of thumb'
+            },
+            {
+                muscle: 'Extensor Indicis',
+                origin: 'Posterior surface of ulna and interosseous membrane',
+                insertion: 'Extensor expansion of digit 2',
+                nerve: 'Radial nerve (C7-C8)',
+                function: 'Extension of digit 2'
+            },
+                 {
+                muscle: 'Supinator',
+                origin: 'Supinator fossa of ulna and lateral epicondyle',
+                insertion: 'Middle ⅓ of shaft of radius',
+                nerve: 'Deep branch of radial nerve (C7, C8)',
+                function: 'Supination of forearm'
+            },
+            {
+                 muscle: 'Opponens Pollicus',
+                origin: 'Flexor retinaculum and ⅔ of scaphoid and trapezium',
+                insertion: 'First metacarpal',
+                nerve: 'Recurrent branch of median nerve (C8-T1)',
+                function: 'Prime mover for opposition of thumb'
+            },
+            {
+    "muscle": "Adductor Pollicis",
+    "origin": "Proximal end of 2nd and 3rd metacarpals + capitate (oblique head); Shaft of 2nd and 3rd metacarpals",
+    "insertion": "Proximal phalanx of thumb",
+    "function": "Prime mover for adduction of thumb",
+    "nerve": "Deep branch of ulnar nerve (C8-T1)"
+  },
+  {
+    "muscle": "Palmaris Brevis",
+    "origin": "Flexor retinaculum and tendon of palmaris longus if present (Palmar aponeurosis if not)",
+    "insertion": "Skin on medial border of hand",
+    "function": "Deepens cup of palm",
+    "nerve": "Superficial branch of ulnar nerve (C8)"
+  },
+  {
+    "muscle": "Abductor Digiti Minimi",
+    "origin": "Tendon of flexor carpi ulnaris and pisiform",
+    "insertion": "Proximal phalanx of 5th finger and 5th metacarpal",
+    "function": "Prime mover for abduction of 5th finger",
+    "nerve": "Deep branch of ulnar nerve (C8-T1)"
+  },
+  {
+    "muscle": "Flexor Digiti Minimi",
+    "origin": "Hamate and flexor retinaculum",
+    "insertion": "Proximal phalanx of 5th finger",
+    "function": "Flexion of 5th finger",
+    "nerve": "Deep branch of ulnar nerve (C8-T1)"
+  },
+  {
+    "muscle": "Opponens Digiti Minimi",
+    "origin": "Hamate and flexor retinaculum",
+    "insertion": "5th metacarpal",
+    "function": "Prime mover for opposition of 5th finger",
+    "nerve": "Deep branch of ulnar nerve (C8-T1)"
+  },
+  {
+    "muscle": "Palmar Interosseous",
+    "origin": "Shafts of metacarpals",
+    "insertion": "Dorsal digital expansion",
+    "function": "Extension of DIP and PIP, adduction of 2nd, 4th, 5th fingers",
+    "nerve": "Deep branch of ulnar nerve (C8-T1)"
+  },
+  {
+    "muscle": "Dorsal Interosseous",
+    "origin": "Shanks of metacarpals",
+    "insertion": "Dorsal digital expansion",
+    "function": "Extension of DIP and PIP, abduction of 2nd, 3rd, 4th fingers",
+    "nerve": "Deep branch of ulnar nerve (C8-T1)"
+  },
+  {
+    "muscle": "External Oblique",
+    "origin": "Lower 6-8 ribs",
+    "insertion": "Anterior half of iliac crest, linea alba, inguinal ligament",
+    "function": "Contralateral rotation of trunk",
+    "nerve": "Lower intercostal nerves (T7-L1)"
+  },
+  {
+    "muscle": "Internal Oblique",
+    "origin": "Inguinal ligament, anterior ⅔ of iliac crest, and thoracolumbar fascia",
+    "insertion": "Linea alba and lower 4-6 ribs",
+    "function": "Ipsilateral rotation of trunk",
+    "nerve": "Lower intercostal nerves (T7-L1)"
+  },
+  {
+    "muscle": "Transverse Abdominus",
+    "origin": "Thoracolumbar fascia and anterior ⅔ of ilium and inguinal ligament",
+    "insertion": "Linea alba and lower 6 ribs",
+    "function": "Increases intra-abdominal pressure",
+    "nerve": "Lower intercostal nerves (T7-L1)"
+  },
+  {
+    "muscle": "Rectus Abdominus",
+    "origin": "Pubic crest",
+    "insertion": "Ribs 5, 6, 7 and Xiphoid process",
+    "function": "Flexion of trunk, posterior tilt of pelvis",
+    "nerve": "Lower intercostal nerves (T7-L1)"
+  },
+  {
+    "muscle": "Lumbricals",
+    "origin": "Tendons of flexor digitorum profundus",
+    "insertion": "Dorsal digital expansion",
+    "function": "Flexion of MCPs and Extension of IPs of 2nd – 5th fingers",
+    "nerve": "Median nerve: 2nd and 3rd fingers and deep branch of ulnar nerve: 4th and 5th fingers (C8-T1)"
+            },
+];
+
+let currentIndex = 0;
+
+function generateFlashcards(indexOffset = 0) {
+    const flashcardContainer = document.getElementById('flashcardContainer');
+    flashcardContainer.innerHTML = '';
+
+    const startIndex = Math.max(0, currentIndex + indexOffset);
+    const endIndex = Math.min(startIndex + 3, muscleData.length * 4);
+
+    for (let i = startIndex; i < endIndex; i++) {
+        const data = muscleData[Math.floor(i / 4)];
+        const type = i % 4;
+
+        let question = '';
+        let answer = '';
+
+        switch (type) {
+            case 0:
+                question = `What is the origin of ${data.muscle}?`;
+                answer = data.origin;
+                break;
+            case 1:
+                question = `What is the insertion of ${data.muscle}?`;
+                answer = data.insertion;
+                break;
+            case 2:
+                question = `What nerve innervates the ${data.muscle}?`;
+                answer = data.nerve;
+                break;
+            case 3:
+                question = `What is the function of ${data.muscle}?`;
+                answer = data.function;
+                break;
+        }
+
+        createFlashcard(flashcardContainer, question, answer);
+    }
+
+    currentIndex = startIndex;
+}
+
+function randomizeFlashcards() {
+    const flashcardContainer = document.getElementById('flashcardContainer');
+    flashcardContainer.innerHTML = '';
+
+    const usedIndexes = new Set();
+
+    while (usedIndexes.size < 3) {
+        const randomIndex = Math.floor(Math.random() * muscleData.length * 4);
+        if (!usedIndexes.has(randomIndex)) {
+            usedIndexes.add(randomIndex);
+
+            const data = muscleData[Math.floor(randomIndex / 4)];
+            const type = randomIndex % 4;
+
+            let question = '';
+            let answer = '';
+
+            switch (type) {
+                case 0:
+                    question = `What is the origin of ${data.muscle}?`;
+                    answer = data.origin;
+                    break;
+                case 1:
+                    question = `What is the insertion of ${data.muscle}?`;
+                    answer = data.insertion;
+                    break;
+                case 2:
+                    question = `What nerve innervates the ${data.muscle}?`;
+                    answer = data.nerve;
+                    break;
+                case 3:
+                    question = `What is the function of ${data.muscle}?`;
+                    answer = data.function;
+                    break;
+            }
+
+            createFlashcard(flashcardContainer, question, answer);
+        }
+    }
+}
+
+function createFlashcard(container, question, answer) {
+    const flashcard = document.createElement('div');
+    flashcard.classList.add('flashcard');
+
+    const questionElement = document.createElement('div');
+    questionElement.classList.add('question');
+    questionElement.innerText = question;
+
+    const answerElement = document.createElement('div');
+    answerElement.classList.add('answer');
+    answerElement.innerText = answer;
+
+    flashcard.appendChild(questionElement);
+    flashcard.appendChild(answerElement);
+
+    flashcard.addEventListener('click', () => {
+        answerElement.classList.toggle('show');
+    });
+
+    container.appendChild(flashcard);
+}
+
+document.getElementById('nextButton').addEventListener('click', () => generateFlashcards(3));
+document.getElementById('prevButton').addEventListener('click', () => generateFlashcards(-3));
+document.getElementById('randomButton').addEventListener('click', randomizeFlashcards);
+
+// Generate the initial set of flashcards
+generateFlashcards();
+</script>
+
+</body>
+</html>
